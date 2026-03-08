@@ -99,6 +99,7 @@ export type Database = {
       products: {
         Row: {
           affiliate_link: string | null
+          category: string | null
           created_at: string
           current_price: number | null
           id: string
@@ -108,11 +109,13 @@ export type Database = {
           name: string
           original_price: number | null
           platform: string
+          source_page: string | null
           updated_at: string
           url: string
         }
         Insert: {
           affiliate_link?: string | null
+          category?: string | null
           created_at?: string
           current_price?: number | null
           id?: string
@@ -122,11 +125,13 @@ export type Database = {
           name: string
           original_price?: number | null
           platform: string
+          source_page?: string | null
           updated_at?: string
           url: string
         }
         Update: {
           affiliate_link?: string | null
+          category?: string | null
           created_at?: string
           current_price?: number | null
           id?: string
@@ -136,6 +141,7 @@ export type Database = {
           name?: string
           original_price?: number | null
           platform?: string
+          source_page?: string | null
           updated_at?: string
           url?: string
         }

@@ -1,0 +1,3 @@
+ALTER TABLE public.products
+ADD COLUMN IF NOT EXISTS category text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS source_page text DEFAULT NULL;
