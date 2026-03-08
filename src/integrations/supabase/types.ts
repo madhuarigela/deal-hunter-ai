@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       deals: {
         Row: {
+          ai_processed_at: string | null
+          ai_score: number | null
           deal_score: number | null
           detected_at: string
           discount_percent: number
@@ -25,8 +27,11 @@ export type Database = {
           posted_at: string | null
           product_id: string
           status: string
+          telegram_message: string | null
         }
         Insert: {
+          ai_processed_at?: string | null
+          ai_score?: number | null
           deal_score?: number | null
           detected_at?: string
           discount_percent: number
@@ -36,8 +41,11 @@ export type Database = {
           posted_at?: string | null
           product_id: string
           status?: string
+          telegram_message?: string | null
         }
         Update: {
+          ai_processed_at?: string | null
+          ai_score?: number | null
           deal_score?: number | null
           detected_at?: string
           discount_percent?: number
@@ -47,6 +55,7 @@ export type Database = {
           posted_at?: string | null
           product_id?: string
           status?: string
+          telegram_message?: string | null
         }
         Relationships: [
           {

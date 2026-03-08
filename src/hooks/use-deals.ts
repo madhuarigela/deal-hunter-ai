@@ -132,6 +132,7 @@ export function usePostToTelegram() {
     mutationFn: async (deal: Deal & { products: Product }) => {
       const { data, error } = await supabase.functions.invoke("post-to-telegram", {
         body: {
+          telegramMessage: (deal as any).telegram_message || undefined,
           productName: deal.products.name,
           oldPrice: deal.old_price,
           newPrice: deal.new_price,

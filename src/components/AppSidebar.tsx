@@ -114,6 +114,15 @@ export function AppSidebar() {
                 >
                   <Play className="h-3 w-3 mr-2" /> Detect Deals
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs"
+                  onClick={() => handleRunWorker("process-deals", "AI Processing")}
+                  disabled={runWorker.isPending}
+                >
+                  <Play className="h-3 w-3 mr-2" /> Process Deals (AI)
+                </Button>
               </div>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -121,7 +130,7 @@ export function AppSidebar() {
       </SidebarContent>
       {!collapsed && (
         <SidebarFooter className="p-4">
-          <p className="text-xs text-muted-foreground">Automation runs every 30 min</p>
+          <p className="text-xs text-muted-foreground">AI pipeline runs every 20 min</p>
         </SidebarFooter>
       )}
     </Sidebar>

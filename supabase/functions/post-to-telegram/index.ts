@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, oldPrice, newPrice, discountPercent, buyLink, imageUrl } = await req.json();
+    const { telegramMessage, productName, oldPrice, newPrice, discountPercent, buyLink, imageUrl } = await req.json();
 
     const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
     const chatId = Deno.env.get("TELEGRAM_CHAT_ID");
@@ -23,7 +23,8 @@ serve(async (req) => {
       );
     }
 
-    const message = `🔥 *Deal Alert!*
+    // Use pre-generated message if available, otherwise build one
+    const message = telegramMessage || `🔥 *Deal Alert!*
 
 📦 *${productName}*
 
