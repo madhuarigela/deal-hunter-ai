@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, oldPrice, newPrice, discountPercent, buyLink } = await req.json();
+    const { productName, oldPrice, newPrice, discountPercent, buyLink, imageUrl } = await req.json();
 
     const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
     const chatId = Deno.env.get("TELEGRAM_CHAT_ID");
@@ -27,21 +27,36 @@ serve(async (req) => {
 
 📦 *${productName}*
 
-~~₹${oldPrice.toLocaleString()}~~ → *₹${newPrice.toLocaleString()}*
+~~₹${oldPrice?.toLocaleString()}~~ → *₹${newPrice?.toLocaleString()}*
 💰 *${discountPercent}% OFF*
 
 🛒 [Buy Now](${buyLink})`;
 
-    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: "Markdown",
-        disable_web_page_preview: false,
-      }),
-    });
+    // If we have an image, send photo with caption; otherwise send text
+    let response;
+    if (imageUrl) {
+      response = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          photo: imageUrl,
+          caption: message,
+          parse_mode: "Markdown",
+        }),
+      });
+    } else {
+      response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: "Markdown",
+          disable_web_page_preview: false,
+        }),
+      });
+    }
 
     const data = await response.json();
 

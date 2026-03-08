@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       deals: {
         Row: {
+          deal_score: number | null
           detected_at: string
           discount_percent: number
           id: string
@@ -26,6 +27,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          deal_score?: number | null
           detected_at?: string
           discount_percent: number
           id?: string
@@ -36,6 +38,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          deal_score?: number | null
           detected_at?: string
           discount_percent?: number
           id?: string

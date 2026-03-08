@@ -16,7 +16,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all actively tracked products
     const { data: products, error: fetchErr } = await supabase
       .from("products")
       .select("*")
@@ -28,10 +27,11 @@ serve(async (req) => {
 
     for (const product of products || []) {
       try {
-        // Attempt to fetch the product page
         const response = await fetch(product.url, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "en-IN,en;q=0.9",
           },
         });
 
@@ -43,39 +43,51 @@ serve(async (req) => {
         const html = await response.text();
         let extractedPrice: number | null = null;
 
-        // Try to extract price based on platform
         if (product.platform === "amazon") {
-          // Look for Amazon price patterns
-          const priceMatch = html.match(/class="a-price-whole"[^>]*>([0-9,]+)/);
-          if (priceMatch) {
-            extractedPrice = parseFloat(priceMatch[1].replace(/,/g, ""));
+          // Multiple Amazon price selectors
+          const patterns = [
+            /class="a-price-whole"[^>]*>([0-9,]+)/,
+            /id="priceblock_dealprice"[^>]*>₹\s*([0-9,]+)/,
+            /id="priceblock_ourprice"[^>]*>₹\s*([0-9,]+)/,
+            /"priceToPay"[^}]*"value":"([0-9.]+)"/,
+          ];
+          for (const pattern of patterns) {
+            const m = html.match(pattern);
+            if (m) {
+              extractedPrice = parseFloat(m[1].replace(/,/g, ""));
+              break;
+            }
           }
         } else if (product.platform === "flipkart") {
-          // Look for Flipkart price patterns
-          const priceMatch = html.match(/class="_30jeq3[^"]*"[^>]*>₹([0-9,]+)/);
-          if (priceMatch) {
-            extractedPrice = parseFloat(priceMatch[1].replace(/,/g, ""));
+          const patterns = [
+            /class="_30jeq3[^"]*"[^>]*>₹([0-9,]+)/,
+            /class="_16Jk6d"[^>]*>₹([0-9,]+)/,
+          ];
+          for (const pattern of patterns) {
+            const m = html.match(pattern);
+            if (m) {
+              extractedPrice = parseFloat(m[1].replace(/,/g, ""));
+              break;
+            }
           }
         }
 
-        // Fallback: try generic price pattern
+        // Fallback generic
         if (!extractedPrice) {
-          const genericMatch = html.match(/₹\s*([0-9,]+(?:\.[0-9]+)?)/);
-          if (genericMatch) {
-            extractedPrice = parseFloat(genericMatch[1].replace(/,/g, ""));
+          const generic = html.match(/₹\s*([0-9,]+(?:\.[0-9]+)?)/);
+          if (generic) {
+            extractedPrice = parseFloat(generic[1].replace(/,/g, ""));
           }
         }
 
         if (extractedPrice && extractedPrice > 0) {
-          const oldPrice = product.current_price;
-
-          // Store in price_history
+          // Store price history
           await supabase.from("price_history").insert({
             product_id: product.id,
             price: extractedPrice,
           });
 
-          // Update product current_price and last_checked_at
+          // Update product
           await supabase
             .from("products")
             .update({
@@ -84,26 +96,8 @@ serve(async (req) => {
             })
             .eq("id", product.id);
 
-          // Detect price drop > 20%
-          if (oldPrice && oldPrice > 0) {
-            const dropPercent = Math.round(((oldPrice - extractedPrice) / oldPrice) * 100);
-            if (dropPercent >= 20) {
-              await supabase.from("deals").insert({
-                product_id: product.id,
-                old_price: oldPrice,
-                new_price: extractedPrice,
-                discount_percent: dropPercent,
-                status: "pending",
-              });
-              results.push({ product: product.name, status: "deal_detected", drop: `${dropPercent}%` });
-            } else {
-              results.push({ product: product.name, status: "price_updated", price: extractedPrice });
-            }
-          } else {
-            results.push({ product: product.name, status: "price_set", price: extractedPrice });
-          }
+          results.push({ product: product.name, status: "updated", price: extractedPrice });
         } else {
-          // Update last_checked_at even if price not found
           await supabase
             .from("products")
             .update({ last_checked_at: new Date().toISOString() })
