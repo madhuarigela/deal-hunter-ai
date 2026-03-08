@@ -67,6 +67,44 @@ export type Database = {
           },
         ]
       }
+      price_comparisons: {
+        Row: {
+          all_prices: Json
+          cheapest_price: number
+          cheapest_store: string
+          compared_at: string
+          id: string
+          master_product_id: string
+          price_difference: number
+        }
+        Insert: {
+          all_prices?: Json
+          cheapest_price: number
+          cheapest_store: string
+          compared_at?: string
+          id?: string
+          master_product_id: string
+          price_difference?: number
+        }
+        Update: {
+          all_prices?: Json
+          cheapest_price?: number
+          cheapest_store?: string
+          compared_at?: string
+          id?: string
+          master_product_id?: string
+          price_difference?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_comparisons_master_product_id_fkey"
+            columns: ["master_product_id"]
+            isOneToOne: false
+            referencedRelation: "products_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       price_history: {
         Row: {
           id: string
@@ -106,6 +144,7 @@ export type Database = {
           image_url: string | null
           is_tracking: boolean
           last_checked_at: string | null
+          master_product_id: string | null
           name: string
           original_price: number | null
           platform: string
@@ -122,6 +161,7 @@ export type Database = {
           image_url?: string | null
           is_tracking?: boolean
           last_checked_at?: string | null
+          master_product_id?: string | null
           name: string
           original_price?: number | null
           platform: string
@@ -138,12 +178,48 @@ export type Database = {
           image_url?: string | null
           is_tracking?: boolean
           last_checked_at?: string | null
+          master_product_id?: string | null
           name?: string
           original_price?: number | null
           platform?: string
           source_page?: string | null
           updated_at?: string
           url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_master_product_id_fkey"
+            columns: ["master_product_id"]
+            isOneToOne: false
+            referencedRelation: "products_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_master: {
+        Row: {
+          brand: string
+          created_at: string
+          id: string
+          model: string
+          normalized_name: string
+          variant: string | null
+        }
+        Insert: {
+          brand: string
+          created_at?: string
+          id?: string
+          model: string
+          normalized_name: string
+          variant?: string | null
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          id?: string
+          model?: string
+          normalized_name?: string
+          variant?: string | null
         }
         Relationships: []
       }
