@@ -166,3 +166,52 @@ export function useRunWorker() {
     },
   });
 }
+
+export function usePriceComparisons(masterProductId: string | null) {
+  return useQuery({
+    queryKey: ["price_comparisons", masterProductId],
+    enabled: !!masterProductId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("price_comparisons")
+        .select("*")
+        .eq("master_product_id", masterProductId!)
+        .order("compared_at", { ascending: false })
+        .limit(1);
+      if (error) throw error;
+      return data?.[0] as PriceComparison | undefined;
+    },
+  });
+}
+
+export function useCrossStoreListings(masterProductId: string | null) {
+  return useQuery({
+    queryKey: ["cross_store_listings", masterProductId],
+    enabled: !!masterProductId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, platform, current_price, url, affiliate_link")
+        .eq("master_product_id", masterProductId!)
+        .not("current_price", "is", null)
+        .order("current_price", { ascending: true });
+      if (error) throw error;
+      return data as Product[];
+    },
+  });
+}
+
+export function useAllComparisons() {
+  return useQuery({
+    queryKey: ["all_comparisons"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("price_comparisons")
+        .select("*")
+        .order("compared_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data as PriceComparison[];
+    },
+  });
+}

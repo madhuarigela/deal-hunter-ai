@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.discover-multistore-products]
 verify_jwt = false
+
+[functions.normalize-products]
+verify_jwt = false
+
+[functions.compare-prices]
+verify_jwt = false
