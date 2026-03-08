@@ -14,10 +14,11 @@ function statusColor(status: string) {
   }
 }
 
-function scoreColor(score: number) {
-  if (score >= 70) return "text-primary";
-  if (score >= 40) return "text-accent";
-  return "text-muted-foreground";
+function aiScoreColor(score: number | null) {
+  if (!score) return "text-muted-foreground border-muted";
+  if (score >= 80) return "text-primary border-primary/30 bg-primary/10";
+  if (score >= 60) return "text-accent border-accent/30 bg-accent/10";
+  return "text-destructive border-destructive/30 bg-destructive/10";
 }
 
 export function DealList() {
