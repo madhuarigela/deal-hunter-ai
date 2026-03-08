@@ -80,14 +80,18 @@ export default function Analytics() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <Card className="p-4 gradient-deal">
           <p className="text-xs text-muted-foreground">Auto-Posted</p>
           <p className="text-2xl font-bold font-mono text-primary">{autoPosted}</p>
         </Card>
         <Card className="p-4 gradient-deal">
-          <p className="text-xs text-muted-foreground">Fake Discounts Rejected</p>
+          <p className="text-xs text-muted-foreground">Fake Rejected</p>
           <p className="text-2xl font-bold font-mono text-destructive">{fakeRejected}</p>
+        </Card>
+        <Card className="p-4 gradient-deal">
+          <p className="text-xs text-muted-foreground">Cross-Store Deals</p>
+          <p className="text-2xl font-bold font-mono text-accent">{crossStoreDeals}</p>
         </Card>
       </div>
 

@@ -1,10 +1,22 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useProduct, usePriceHistory, useDeals } from "@/hooks/use-deals";
+import { useProduct, usePriceHistory, useDeals, useCrossStoreListings } from "@/hooks/use-deals";
 import { PriceChart } from "@/components/PriceChart";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+
+function platformBadgeClass(platform: string) {
+  switch (platform) {
+    case "amazon": return "bg-[hsl(38,92%,55%)]/20 text-[hsl(38,92%,55%)] border-[hsl(38,92%,55%)]/30";
+    case "flipkart": return "bg-[hsl(210,80%,55%)]/20 text-[hsl(210,80%,55%)] border-[hsl(210,80%,55%)]/30";
+    case "croma": return "bg-primary/20 text-primary border-primary/30";
+    case "reliance": return "bg-[hsl(0,72%,55%)]/20 text-[hsl(0,72%,55%)] border-[hsl(0,72%,55%)]/30";
+    case "myntra": return "bg-[hsl(330,70%,55%)]/20 text-[hsl(330,70%,55%)] border-[hsl(330,70%,55%)]/30";
+    case "ajio": return "bg-[hsl(270,60%,55%)]/20 text-[hsl(270,60%,55%)] border-[hsl(270,60%,55%)]/30";
+    default: return "bg-muted text-muted-foreground";
+  }
+}
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -12,10 +24,15 @@ export default function ProductDetail() {
   const { data: product, isLoading } = useProduct(id);
   const { data: deals } = useDeals();
 
+  const masterProductId = (product as any)?.master_product_id || null;
+  const { data: crossStoreListings } = useCrossStoreListings(masterProductId);
+
   const productDeals = deals?.filter((d) => d.product_id === id) || [];
 
   if (isLoading) return <p className="text-muted-foreground">Loading...</p>;
   if (!product) return <p className="text-muted-foreground">Product not found.</p>;
+
+  const cheapestListing = crossStoreListings?.[0];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -26,9 +43,9 @@ export default function ProductDetail() {
       <Card className="p-6 gradient-deal">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <h1 className="text-xl font-bold">{product.name}</h1>
-              <Badge variant="secondary" className="font-mono">{product.platform}</Badge>
+              <Badge variant="outline" className={`font-mono capitalize ${platformBadgeClass(product.platform)}`}>{product.platform}</Badge>
               {product.is_tracking && (
                 <Badge className="bg-primary/20 text-primary border-primary/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-green mr-1" />
@@ -56,6 +73,46 @@ export default function ProductDetail() {
           </Button>
         </div>
       </Card>
+
+      {/* Cross-Store Price Comparison */}
+      {crossStoreListings && crossStoreListings.length > 1 && (
+        <section>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Cross-Store Price Comparison
+          </h2>
+          <Card className="overflow-hidden">
+            <div className="divide-y divide-border">
+              {crossStoreListings.map((listing) => {
+                const isCheapest = listing.id === cheapestListing?.id;
+                return (
+                  <div
+                    key={listing.id}
+                    className={`flex items-center justify-between p-3 ${isCheapest ? "bg-primary/5" : ""}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className={`capitalize text-xs ${platformBadgeClass(listing.platform)}`}>
+                        {listing.platform}
+                      </Badge>
+                      <span className="text-sm truncate max-w-[200px]">{listing.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`font-mono text-sm font-bold ${isCheapest ? "text-primary" : "text-foreground"}`}>
+                        ₹{listing.current_price?.toLocaleString()}
+                      </span>
+                      {isCheapest && (
+                        <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">Cheapest</Badge>
+                      )}
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => window.open(listing.url, "_blank")}>
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </section>
+      )}
 
       <section>
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
