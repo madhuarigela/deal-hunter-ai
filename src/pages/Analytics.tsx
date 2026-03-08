@@ -139,6 +139,32 @@ export default function Analytics() {
             <p className="text-muted-foreground text-sm text-center py-10">No data</p>
           )}
         </Card>
+        <Card className="p-4">
+          <h3 className="text-sm font-medium mb-3">Products Discovered per Platform</h3>
+          {platformData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={platformData}>
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(215,12%,52%)" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(215,12%,52%)" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(220,18%,10%)",
+                    border: "1px solid hsl(220,14%,18%)",
+                    borderRadius: "6px",
+                    fontSize: 12,
+                  }}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {platformData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-10">No data</p>
+          )}
+        </Card>
       </div>
     </div>
   );
