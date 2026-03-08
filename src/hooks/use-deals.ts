@@ -20,6 +20,22 @@ export function useProducts() {
   });
 }
 
+export function useProduct(id: string | undefined) {
+  return useQuery({
+    queryKey: ["products", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id!)
+        .single();
+      if (error) throw error;
+      return data as Product;
+    },
+  });
+}
+
 export function useDeals() {
   return useQuery({
     queryKey: ["deals"],
@@ -57,6 +73,17 @@ export function useAddProduct() {
       const { data, error } = await supabase.from("products").insert(product).select().single();
       if (error) throw error;
       return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+  });
+}
+
+export function useUpdateProduct() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; is_tracking?: boolean; affiliate_link?: string | null }) => {
+      const { error } = await supabase.from("products").update(updates).eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
   });
@@ -105,7 +132,7 @@ export function usePostToTelegram() {
           oldPrice: deal.old_price,
           newPrice: deal.new_price,
           discountPercent: deal.discount_percent,
-          buyLink: deal.products.url,
+          buyLink: (deal.products as any).affiliate_link || deal.products.url,
         },
       });
       if (error) throw error;

@@ -12,6 +12,7 @@ export function AddProductDialog() {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [platform, setPlatform] = useState<string>("amazon");
+  const [affiliateLink, setAffiliateLink] = useState("");
   const [currentPrice, setCurrentPrice] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const addProduct = useAddProduct();
@@ -23,13 +24,15 @@ export function AddProductDialog() {
         name,
         url,
         platform,
+        affiliate_link: affiliateLink || null,
         current_price: currentPrice ? Number(currentPrice) : null,
         original_price: originalPrice ? Number(originalPrice) : null,
-      });
+      } as any);
       toast.success("Product added successfully");
       setOpen(false);
       setName("");
       setUrl("");
+      setAffiliateLink("");
       setCurrentPrice("");
       setOriginalPrice("");
     } catch {
@@ -51,6 +54,7 @@ export function AddProductDialog() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input placeholder="Product name" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input placeholder="Product URL" value={url} onChange={(e) => setUrl(e.target.value)} required />
+          <Input placeholder="Affiliate link (optional)" value={affiliateLink} onChange={(e) => setAffiliateLink(e.target.value)} />
           <Select value={platform} onValueChange={setPlatform}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
