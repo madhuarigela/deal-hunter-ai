@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.check-prices]
 verify_jwt = false
+
+[functions.discover-products]
+verify_jwt = false
+
+[functions.detect-deals]
+verify_jwt = false

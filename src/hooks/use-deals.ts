@@ -116,7 +116,11 @@ export function useUpdateDealStatus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("deals").update({ status }).eq("id", id);
+      const updates: any = { status };
+      if (status === "posted") {
+        updates.posted_at = new Date().toISOString();
+      }
+      const { error } = await supabase.from("deals").update(updates).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["deals"] }),
@@ -133,8 +137,19 @@ export function usePostToTelegram() {
           newPrice: deal.new_price,
           discountPercent: deal.discount_percent,
           buyLink: (deal.products as any).affiliate_link || deal.products.url,
+          imageUrl: deal.products.image_url,
         },
       });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useRunWorker() {
+  return useMutation({
+    mutationFn: async (functionName: string) => {
+      const { data, error } = await supabase.functions.invoke(functionName);
       if (error) throw error;
       return data;
     },
