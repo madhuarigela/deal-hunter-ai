@@ -6,6 +6,16 @@ export type Product = Tables<"products">;
 export type Deal = Tables<"deals">;
 export type PriceHistory = Tables<"price_history">;
 
+export type PriceComparison = {
+  id: string;
+  master_product_id: string;
+  cheapest_store: string;
+  cheapest_price: number;
+  price_difference: number;
+  all_prices: { store: string; price: number }[];
+  compared_at: string;
+};
+
 export function useProducts() {
   return useQuery({
     queryKey: ["products"],
