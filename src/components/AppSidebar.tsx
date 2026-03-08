@@ -132,6 +132,24 @@ export function AppSidebar() {
                 >
                   <Play className="h-3 w-3 mr-2" /> Process Deals (AI)
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs"
+                  onClick={() => handleRunWorker("normalize-products", "Normalize Products")}
+                  disabled={runWorker.isPending}
+                >
+                  <Play className="h-3 w-3 mr-2" /> Normalize Products
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs"
+                  onClick={() => handleRunWorker("compare-prices", "Compare Prices")}
+                  disabled={runWorker.isPending}
+                >
+                  <Play className="h-3 w-3 mr-2" /> Compare Prices
+                </Button>
               </div>
             </SidebarGroupContent>
           </SidebarGroup>

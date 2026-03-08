@@ -1,10 +1,22 @@
-import { useProducts, useDeals } from "@/hooks/use-deals";
+import { useProducts, useDeals, useAllComparisons } from "@/hooks/use-deals";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 export default function Analytics() {
   const { data: products } = useProducts();
   const { data: deals } = useDeals();
+  const { data: comparisons } = useAllComparisons();
+
+  // Cross-store stats
+  const cheapestStoreCounts = (comparisons || []).reduce((acc, c) => {
+    acc[c.cheapest_store] = (acc[c.cheapest_store] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const cheapestStoreData = Object.entries(cheapestStoreCounts).map(([name, value]) => ({ name, value }));
+  const crossStoreDeals = (comparisons || []).filter(c => c.price_difference > 0).length;
+  const avgPriceDiff = comparisons?.length
+    ? Math.round(comparisons.reduce((s, c) => s + c.price_difference, 0) / comparisons.length)
+    : 0;
 
   const platformCounts = (products || []).reduce((acc, p) => {
     acc[p.platform] = (acc[p.platform] || 0) + 1;
@@ -68,14 +80,18 @@ export default function Analytics() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <Card className="p-4 gradient-deal">
           <p className="text-xs text-muted-foreground">Auto-Posted</p>
           <p className="text-2xl font-bold font-mono text-primary">{autoPosted}</p>
         </Card>
         <Card className="p-4 gradient-deal">
-          <p className="text-xs text-muted-foreground">Fake Discounts Rejected</p>
+          <p className="text-xs text-muted-foreground">Fake Rejected</p>
           <p className="text-2xl font-bold font-mono text-destructive">{fakeRejected}</p>
+        </Card>
+        <Card className="p-4 gradient-deal">
+          <p className="text-xs text-muted-foreground">Cross-Store Deals</p>
+          <p className="text-2xl font-bold font-mono text-accent">{crossStoreDeals}</p>
         </Card>
       </div>
 
@@ -164,6 +180,34 @@ export default function Analytics() {
           ) : (
             <p className="text-muted-foreground text-sm text-center py-10">No data</p>
           )}
+        </Card>
+
+        <Card className="p-4">
+          <h3 className="text-sm font-medium mb-3">Cheapest Store Distribution</h3>
+          {cheapestStoreData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={cheapestStoreData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                  {cheapestStoreData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-10">No data</p>
+          )}
+        </Card>
+
+        <Card className="p-4">
+          <h3 className="text-sm font-medium mb-3">Avg Price Difference (Cross-Store)</h3>
+          <div className="flex items-center justify-center h-[200px]">
+            <div className="text-center">
+              <p className="text-4xl font-bold font-mono text-primary">₹{avgPriceDiff.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground mt-1">average savings across stores</p>
+            </div>
+          </div>
         </Card>
       </div>
     </div>

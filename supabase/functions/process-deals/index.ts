@@ -10,7 +10,8 @@ function calculateAiScore(
   discountPercent: number,
   currentPrice: number,
   avgPrice30d: number,
-  lowestPrice30d: number
+  lowestPrice30d: number,
+  isCheapestCrossStore: boolean = false
 ): number {
   const discountScore = Math.min(discountPercent, 100) * 0.4;
 
@@ -18,8 +19,9 @@ function calculateAiScore(
   const avgScore = Math.min(Math.max(avgDiff, 0), 100) * 0.3;
 
   const historicLowBonus = currentPrice < lowestPrice30d ? 30 : 0;
+  const crossStoreBonus = isCheapestCrossStore ? 20 : 0;
 
-  return Math.round(Math.min(Math.max(discountScore + avgScore + historicLowBonus, 0), 100));
+  return Math.round(Math.min(Math.max(discountScore + avgScore + historicLowBonus + crossStoreBonus, 0), 100));
 }
 
 function generateTelegramMessage(
@@ -99,8 +101,23 @@ serve(async (req) => {
         continue;
       }
 
+      // Check if this product is cheapest across stores
+      let isCheapestCrossStore = false;
+      if (product.master_product_id) {
+        const { data: comparison } = await supabase
+          .from("price_comparisons")
+          .select("cheapest_store")
+          .eq("master_product_id", product.master_product_id)
+          .order("compared_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (comparison && comparison.cheapest_store === product.platform) {
+          isCheapestCrossStore = true;
+        }
+      }
+
       const discountPercent = deal.discount_percent;
-      const aiScore = calculateAiScore(discountPercent, currentPrice, avgPrice30d, lowestPrice30d);
+      const aiScore = calculateAiScore(discountPercent, currentPrice, avgPrice30d, lowestPrice30d, isCheapestCrossStore);
 
       const affiliateLink = product.affiliate_link || product.url;
       const telegramMessage = generateTelegramMessage(
