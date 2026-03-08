@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.process-deals]
 verify_jwt = false
+
+[functions.discover-multistore-products]
+verify_jwt = false
