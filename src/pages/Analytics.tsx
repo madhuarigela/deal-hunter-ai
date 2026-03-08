@@ -181,6 +181,34 @@ export default function Analytics() {
             <p className="text-muted-foreground text-sm text-center py-10">No data</p>
           )}
         </Card>
+
+        <Card className="p-4">
+          <h3 className="text-sm font-medium mb-3">Cheapest Store Distribution</h3>
+          {cheapestStoreData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={cheapestStoreData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                  {cheapestStoreData.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-muted-foreground text-sm text-center py-10">No data</p>
+          )}
+        </Card>
+
+        <Card className="p-4">
+          <h3 className="text-sm font-medium mb-3">Avg Price Difference (Cross-Store)</h3>
+          <div className="flex items-center justify-center h-[200px]">
+            <div className="text-center">
+              <p className="text-4xl font-bold font-mono text-primary">₹{avgPriceDiff.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground mt-1">average savings across stores</p>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );
