@@ -5,6 +5,18 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 export default function Analytics() {
   const { data: products } = useProducts();
   const { data: deals } = useDeals();
+  const { data: comparisons } = useAllComparisons();
+
+  // Cross-store stats
+  const cheapestStoreCounts = (comparisons || []).reduce((acc, c) => {
+    acc[c.cheapest_store] = (acc[c.cheapest_store] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const cheapestStoreData = Object.entries(cheapestStoreCounts).map(([name, value]) => ({ name, value }));
+  const crossStoreDeals = (comparisons || []).filter(c => c.price_difference > 0).length;
+  const avgPriceDiff = comparisons?.length
+    ? Math.round(comparisons.reduce((s, c) => s + c.price_difference, 0) / comparisons.length)
+    : 0;
 
   const platformCounts = (products || []).reduce((acc, p) => {
     acc[p.platform] = (acc[p.platform] || 0) + 1;
