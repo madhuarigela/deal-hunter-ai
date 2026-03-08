@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, ExternalLink, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { AddProductDialog } from "@/components/AddProductDialog";
@@ -11,15 +12,34 @@ import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 20;
 
+const PLATFORMS = ["all", "amazon", "flipkart", "croma", "reliance", "myntra", "ajio", "other"] as const;
+
+function platformBadgeClass(platform: string) {
+  switch (platform) {
+    case "amazon": return "bg-[hsl(38,92%,55%)]/20 text-[hsl(38,92%,55%)] border-[hsl(38,92%,55%)]/30";
+    case "flipkart": return "bg-[hsl(210,80%,55%)]/20 text-[hsl(210,80%,55%)] border-[hsl(210,80%,55%)]/30";
+    case "croma": return "bg-primary/20 text-primary border-primary/30";
+    case "reliance": return "bg-[hsl(0,72%,55%)]/20 text-[hsl(0,72%,55%)] border-[hsl(0,72%,55%)]/30";
+    case "myntra": return "bg-[hsl(330,70%,55%)]/20 text-[hsl(330,70%,55%)] border-[hsl(330,70%,55%)]/30";
+    case "ajio": return "bg-[hsl(270,60%,55%)]/20 text-[hsl(270,60%,55%)] border-[hsl(270,60%,55%)]/30";
+    default: return "bg-muted text-muted-foreground";
+  }
+}
+
 export default function Products() {
   const { data: products, isLoading } = useProducts();
   const deleteProduct = useDeleteProduct();
   const updateProduct = useUpdateProduct();
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
+  const [platformFilter, setPlatformFilter] = useState<string>("all");
 
-  const totalPages = Math.ceil((products?.length || 0) / PAGE_SIZE);
-  const paginated = products?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) || [];
+  const filtered = platformFilter === "all"
+    ? products
+    : products?.filter((p) => p.platform === platformFilter);
+
+  const totalPages = Math.ceil((filtered?.length || 0) / PAGE_SIZE);
+  const paginated = filtered?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) || [];
 
   const handleDelete = async (id: string) => {
     try {
@@ -44,14 +64,26 @@ export default function Products() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-sm text-muted-foreground">{products?.length || 0} total products</p>
+          <p className="text-sm text-muted-foreground">{filtered?.length || 0} products {platformFilter !== "all" ? `(${platformFilter})` : ""}</p>
         </div>
-        <AddProductDialog />
+        <div className="flex items-center gap-3">
+          <Select value={platformFilter} onValueChange={(v) => { setPlatformFilter(v); setPage(0); }}>
+            <SelectTrigger className="w-[140px] h-9 text-xs">
+              <SelectValue placeholder="All platforms" />
+            </SelectTrigger>
+            <SelectContent>
+              {PLATFORMS.map((p) => (
+                <SelectItem key={p} value={p} className="text-xs capitalize">{p === "all" ? "All Platforms" : p}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <AddProductDialog />
+        </div>
       </div>
 
       {isLoading && <p className="text-muted-foreground text-sm">Loading products...</p>}
-      {!isLoading && !products?.length && (
-        <p className="text-muted-foreground text-sm">No products tracked yet. Add one or run the discovery worker.</p>
+      {!isLoading && !filtered?.length && (
+        <p className="text-muted-foreground text-sm">No products found. Add one or run the discovery worker.</p>
       )}
 
       <div className="grid gap-3">
@@ -63,9 +95,14 @@ export default function Products() {
                   <img src={p.image_url} alt={p.name} className="h-10 w-10 rounded object-cover shrink-0 bg-muted" />
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-medium truncate text-sm">{p.name}</h3>
-                    <Badge variant="secondary" className="text-xs font-mono shrink-0">{p.platform}</Badge>
+                    <Badge variant="outline" className={`text-xs font-mono shrink-0 capitalize ${platformBadgeClass(p.platform)}`}>
+                      {p.platform}
+                    </Badge>
+                    {(p as any).category && (
+                      <Badge variant="secondary" className="text-xs shrink-0">{(p as any).category}</Badge>
+                    )}
                   </div>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     {p.current_price != null && (

@@ -91,6 +91,15 @@ export function AppSidebar() {
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start text-xs"
+                  onClick={() => handleRunWorker("discover-multistore-products", "Multi-Store Discovery")}
+                  disabled={runWorker.isPending}
+                >
+                  <Play className="h-3 w-3 mr-2" /> Discover (Multi-Store)
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs"
                   onClick={() => handleRunWorker("discover-products", "Product Discovery")}
                   disabled={runWorker.isPending}
                 >
