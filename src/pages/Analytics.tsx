@@ -36,9 +36,12 @@ export default function Analytics() {
     ? Math.round((deals.reduce((s, d) => s + d.discount_percent, 0) / deals.length))
     : 0;
 
-  const avgScore = deals?.length
-    ? Math.round((deals.reduce((s, d) => s + ((d as any).deal_score || 0), 0) / deals.length))
+  const avgAiScore = deals?.length
+    ? Math.round((deals.reduce((s, d) => s + ((d as any).ai_score || 0), 0) / deals.length))
     : 0;
+
+  const autoPosted = (deals || []).filter(d => d.status === "posted" && (d as any).ai_score >= 80).length;
+  const fakeRejected = (deals || []).filter(d => d.status === "rejected" && (d as any).ai_score === 0).length;
 
   const COLORS = ["hsl(145,80%,42%)", "hsl(38,92%,55%)", "hsl(0,72%,55%)", "hsl(220,14%,40%)"];
 
