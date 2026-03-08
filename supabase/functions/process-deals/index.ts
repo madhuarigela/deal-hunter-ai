@@ -10,7 +10,8 @@ function calculateAiScore(
   discountPercent: number,
   currentPrice: number,
   avgPrice30d: number,
-  lowestPrice30d: number
+  lowestPrice30d: number,
+  isCheapestCrossStore: boolean = false
 ): number {
   const discountScore = Math.min(discountPercent, 100) * 0.4;
 
@@ -18,8 +19,9 @@ function calculateAiScore(
   const avgScore = Math.min(Math.max(avgDiff, 0), 100) * 0.3;
 
   const historicLowBonus = currentPrice < lowestPrice30d ? 30 : 0;
+  const crossStoreBonus = isCheapestCrossStore ? 20 : 0;
 
-  return Math.round(Math.min(Math.max(discountScore + avgScore + historicLowBonus, 0), 100));
+  return Math.round(Math.min(Math.max(discountScore + avgScore + historicLowBonus + crossStoreBonus, 0), 100));
 }
 
 function generateTelegramMessage(
