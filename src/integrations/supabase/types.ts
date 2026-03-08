@@ -14,7 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      deals: {
+        Row: {
+          detected_at: string
+          discount_percent: number
+          id: string
+          new_price: number
+          old_price: number
+          posted_at: string | null
+          product_id: string
+          status: string
+        }
+        Insert: {
+          detected_at?: string
+          discount_percent: number
+          id?: string
+          new_price: number
+          old_price: number
+          posted_at?: string | null
+          product_id: string
+          status?: string
+        }
+        Update: {
+          detected_at?: string
+          discount_percent?: number
+          id?: string
+          new_price?: number
+          old_price?: number
+          posted_at?: string | null
+          product_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_history: {
+        Row: {
+          id: string
+          price: number
+          product_id: string
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          price: number
+          product_id: string
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          price?: number
+          product_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          created_at: string
+          current_price: number | null
+          id: string
+          image_url: string | null
+          is_tracking: boolean
+          name: string
+          original_price: number | null
+          platform: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          current_price?: number | null
+          id?: string
+          image_url?: string | null
+          is_tracking?: boolean
+          name: string
+          original_price?: number | null
+          platform: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          current_price?: number | null
+          id?: string
+          image_url?: string | null
+          is_tracking?: boolean
+          name?: string
+          original_price?: number | null
+          platform?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
