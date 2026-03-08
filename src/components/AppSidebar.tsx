@@ -130,7 +130,7 @@ export function AppSidebar() {
       </SidebarContent>
       {!collapsed && (
         <SidebarFooter className="p-4">
-          <p className="text-xs text-muted-foreground">Automation runs every 30 min</p>
+          <p className="text-xs text-muted-foreground">AI pipeline runs every 20 min</p>
         </SidebarFooter>
       )}
     </Sidebar>
