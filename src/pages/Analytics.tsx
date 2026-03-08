@@ -63,8 +63,19 @@ export default function Analytics() {
           <p className="text-2xl font-bold font-mono text-primary">{avgDiscount}%</p>
         </Card>
         <Card className="p-4 gradient-deal">
-          <p className="text-xs text-muted-foreground">Avg Deal Score</p>
-          <p className="text-2xl font-bold font-mono text-accent">{avgScore}/100</p>
+          <p className="text-xs text-muted-foreground">Avg AI Score</p>
+          <p className="text-2xl font-bold font-mono text-accent">{avgAiScore}/100</p>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="p-4 gradient-deal">
+          <p className="text-xs text-muted-foreground">Auto-Posted</p>
+          <p className="text-2xl font-bold font-mono text-primary">{autoPosted}</p>
+        </Card>
+        <Card className="p-4 gradient-deal">
+          <p className="text-xs text-muted-foreground">Fake Discounts Rejected</p>
+          <p className="text-2xl font-bold font-mono text-destructive">{fakeRejected}</p>
         </Card>
       </div>
 

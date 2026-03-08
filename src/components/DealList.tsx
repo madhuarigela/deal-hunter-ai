@@ -52,7 +52,7 @@ export function DealList() {
   return (
     <div className="space-y-3">
       {deals.map((deal) => {
-        const dealScore = (deal as any).deal_score || 0;
+        const aiScore = (deal as any).ai_score as number | null;
         return (
           <Card key={deal.id} className="p-4 gradient-deal">
             <div className="flex items-start justify-between gap-3">
@@ -68,9 +68,9 @@ export function DealList() {
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <h3 className="font-medium text-sm truncate">{deal.products?.name || "Unknown"}</h3>
                     <Badge className={`text-xs ${statusColor(deal.status)}`}>{deal.status}</Badge>
-                    {dealScore > 0 && (
-                      <Badge variant="outline" className={`text-xs font-mono ${scoreColor(dealScore)}`}>
-                        Score: {dealScore}
+                    {aiScore != null && (
+                      <Badge variant="outline" className={`text-xs font-mono ${aiScoreColor(aiScore)}`}>
+                        AI: {aiScore}
                       </Badge>
                     )}
                   </div>
