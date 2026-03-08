@@ -1,4 +1,4 @@
-import { useProducts, useDeals } from "@/hooks/use-deals";
+import { useProducts, useDeals, useAllComparisons } from "@/hooks/use-deals";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
